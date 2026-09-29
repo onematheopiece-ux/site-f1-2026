@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>F1 2026 – Résultats et classements</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;800&family=Barlow:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef1f5;--card:#fff;--ink:#14213d;--muted:#5b6785;--line:#d6dce8;--red:#c8102e}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1626;--card:#18223a;--ink:#eef1f8;--muted:#9aa6c4;--line:#2b3859;--red:#ff4d63}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 Barlow,system-ui,sans-serif}
+header{padding:32px 20px 8px;max-width:960px;margin:0 auto}
+h1{font:800 clamp(40px,8vw,72px)/.95 "Barlow Condensed",Impact,sans-serif;margin:0}
+h1 span{color:var(--red)}
+header p{color:var(--muted);margin:8px 0 0}
+nav{max-width:960px;margin:16px auto 0;padding:0 20px;display:flex;gap:8px;flex-wrap:wrap}
+nav button{font:600 16px Barlow,sans-serif;padding:8px 16px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:6px;cursor:pointer}
+nav button[aria-selected=true]{background:var(--red);border-color:var(--red);color:#fff}
+button:focus-visible,select:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+main{max-width:960px;margin:16px auto 48px;padding:0 20px}
+section{display:none;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 16px 16px;overflow-x:auto}
+section.on{display:block}
+select{font:600 16px Barlow,sans-serif;padding:8px;margin:12px 0;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink);max-width:100%}
+table{width:100%;border-collapse:collapse;min-width:420px}
+th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-weight:600;font-size:14px}
+td.pos{font:800 22px "Barlow Condensed",sans-serif;color:var(--red);width:48px}
+td.n{text-align:right;font-variant-numeric:tabular-nums}
+.msg{padding:16px;color:var(--muted)}
+#pilotes tbody tr:nth-child(-n+3),#ecuries tbody tr:nth-child(-n+3),#resultatCourse tbody tr:nth-child(-n+3),#qualifs tbody tr:nth-child(-n+3){background:color-mix(in srgb,var(--red) 7%,transparent)}
+#pilotes tbody tr:nth-child(1) td:nth-child(2),#resultatCourse tbody tr:nth-child(1) td:nth-child(2),#qualifs tbody tr:nth-child(1) td:nth-child(2){font-weight:600}
+h2{font:800 26px "Barlow Condensed",sans-serif;margin:20px 0 4px}
+#prochain{max-width:960px;margin:16px auto 0;padding:0 20px}
+#prochain div{background:var(--red);color:#fff;border-radius:8px;padding:12px 16px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+#prochain b{font:800 22px "Barlow Condensed",sans-serif}
+footer{max-width:960px;margin:0 auto;padding:0 20px 32px;color:var(--muted);font-size:14px}
+
+/* Authentification */
+#authScreen{
+  position:fixed;inset:0;z-index:9999;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;padding:20px;
+}
+.auth-card{
+  width:min(440px,100%);background:var(--card);border:1px solid var(--line);
+  border-radius:14px;padding:28px;box-shadow:0 12px 40px rgba(20,33,61,.12);
+}
+.auth-brand{
+  text-align:center;margin-bottom:24px;
+}
+.auth-brand h1{font-size:48px;margin:0}
+.auth-brand p{color:var(--muted);margin:8px 0 0}
+.auth-tabs{display:flex;gap:8px;margin-bottom:20px}
+.auth-tabs button{
+  flex:1;font:600 16px Barlow,sans-serif;padding:10px 12px;border:1px solid var(--line);
+  background:var(--card);color:var(--ink);border-radius:7px;cursor:pointer;
+}
+.auth-tabs button.active{background:var(--red);border-color:var(--red);color:#fff}
+.auth-form{display:grid;gap:13px}
+.auth-form label{font-weight:600;font-size:14px}
+.auth-form input{
+  width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:7px;
+  background:var(--card);color:var(--ink);font:16px Barlow,sans-serif;
+}
+.auth-form input:focus{outline:3px solid color-mix(in srgb,var(--red) 25%,transparent);border-color:var(--red)}
+.auth-submit{
+  margin-top:5px;width:100%;padding:12px;border:0;border-radius:7px;
+  background:var(--red);color:#fff;font:600 17px Barlow,sans-serif;cursor:pointer;
+}
+.auth-error{color:#c8102e;font-size:14px;min-height:20px}
+.auth-info{color:var(--muted);font-size:13px;text-align:center;margin:15px 0 0}
+#siteContent[hidden]{display:none}
+.user-bar{
+  max-width:960px;margin:10px auto 0;padding:0 20px;display:flex;
+  justify-content:flex-end;align-items:center;gap:10px;color:var(--muted);font-size:14px;
+}
+.logout-btn{
+  border:1px solid var(--line);background:var(--card);color:var(--ink);
+  border-radius:6px;padding:6px 10px;cursor:pointer;font:600 14px Barlow,sans-serif;
+}
+@media(max-width:520px){
+  .auth-card{padding:22px}.auth-brand h1{font-size:42px}
+}
+
+</style>
+</head>
+<body>
+
+<div id="authScreen">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <h1>F1 <span style="color:var(--red)">2026</span></h1>
+      <p>Connecte-toi pour accéder au site.</p>
+    </div>
+
+    <div class="auth-tabs">
+      <button type="button" id="loginTab" class="active">Connexion</button>
+      <button type="button" id="registerTab">Créer un compte</button>
+    </div>
+
+    <form id="authForm" class="auth-form">
+      <div>
+        <label for="authEmail">E-mail</label>
+        <input id="authEmail" type="email" autocomplete="email" required placeholder="ton@email.com">
+      </div>
+
+      <div>
+        <label for="authPassword">Mot de passe</label>
+        <input id="authPassword" type="password" autocomplete="current-password" minlength="6" required placeholder="6 caractères minimum">
+      </div>
+
+      <div id="authConfirmWrap" hidden>
+        <label for="authConfirm">Confirmer le mot de passe</label>
+        <input id="authConfirm" type="password" autocomplete="new-password" minlength="6" placeholder="Retape ton mot de passe">
+      </div>
+
+      <div id="authError" class="auth-error" role="alert"></div>
+      <button id="authSubmit" class="auth-submit" type="submit">Se connecter</button>
+    </form>
+
+    <p class="auth-info">Tes informations sont enregistrées dans ce navigateur pour cette version locale du site.</p>
+  </div>
+</div>
+
+<div id="siteContent" hidden>
+  <div class="user-bar">
+    <span>Connecté en tant que <b id="currentUser"></b></span>
+    <button id="logoutBtn" class="logout-btn" type="button">Déconnexion</button>
+  </div>
+
+<header>
+  <h1>Formule 1 <span>2026</span></h1>
+  <p id="sousTitre">Chargement de la saison…</p>
+</header>
+<div id="prochain"></div>
+<nav role="tablist">
+  <button role="tab" aria-selected="true" data-t="pilotes">Pilotes</button>
+  <button role="tab" aria-selected="false" data-t="ecuries">Écuries</button>
+  <button role="tab" aria-selected="false" data-t="courses">Résultats par course</button>
+  <button role="tab" aria-selected="false" data-t="calendrier">Calendrier</button>
+</nav>
+<main>
+  <section id="pilotes" class="on"><div class="msg">Chargement…</div></section>
+  <section id="ecuries"><div class="msg">Chargement…</div></section>
+  <section id="courses">
+    <select id="choixCourse" aria-label="Choisir un Grand Prix"></select>
+    <h2>Course</h2>
+    <div id="resultatCourse"><div class="msg">Chargement…</div></div>
+    <h2>Qualifications</h2>
+    <div id="qualifs"><div class="msg">Chargement…</div></div>
+  </section>
+  <section id="calendrier"><div class="msg">Chargement…</div></section>
+</main>
+<footer>Données : Jolpica-F1 (API Ergast). Site non officiel, sans lien avec la Formule 1.</footer>
+
+
+<script>
+(function(){
+  const AUTH_KEY = "f1_2026_auth_user";
+  const USERS_KEY = "f1_2026_users";
+  let mode = "login";
+
+  const $ = s => document.querySelector(s);
+  const authScreen = $("#authScreen");
+  const siteContent = $("#siteContent");
+  const form = $("#authForm");
+  const email = $("#authEmail");
+  const password = $("#authPassword");
+  const confirm = $("#authConfirm");
+  const confirmWrap = $("#authConfirmWrap");
+  const error = $("#authError");
+  const submit = $("#authSubmit");
+  const loginTab = $("#loginTab");
+  const registerTab = $("#registerTab");
+  const currentUser = $("#currentUser");
+
+  function readUsers(){
+    try { return JSON.parse(localStorage.getItem(USERS_KEY) || "{}"); }
+    catch(e) { return {}; }
+  }
+
+  function showSite(user){
+    authScreen.style.display = "none";
+    siteContent.hidden = false;
+    currentUser.textContent = user;
+  }
+
+  function showAuth(){
+    authScreen.style.display = "flex";
+    siteContent.hidden = true;
+  }
+
+  function setMode(next){
+    mode = next;
+    const register = mode === "register";
+    loginTab.classList.toggle("active", !register);
+    registerTab.classList.toggle("active", register);
+    confirmWrap.hidden = !register;
+    confirm.required = register;
+    password.autocomplete = register ? "new-password" : "current-password";
+    submit.textContent = register ? "Créer mon compte" : "Se connecter";
+    error.textContent = "";
+  }
+
+  loginTab.addEventListener("click", () => setMode("login"));
+  registerTab.addEventListener("click", () => setMode("register"));
+
+  form.addEventListener("submit", function(e){
+    e.preventDefault();
+    error.textContent = "";
+
+    const userEmail = email.value.trim().toLowerCase();
+    const userPassword = password.value;
+    const users = readUsers();
+
+    if(!userEmail || !userPassword){
+      error.textContent = "Remplis tous les champs.";
+      return;
+    }
+
+    if(mode === "register"){
+      if(userPassword.length < 6){
+        error.textContent = "Le mot de passe doit contenir au moins 6 caractères.";
+        return;
+      }
+      if(userPassword !== confirm.value){
+        error.textContent = "Les deux mots de passe ne correspondent pas.";
+        return;
+      }
+      if(users[userEmail]){
+        error.textContent = "Un compte existe déjà avec cet e-mail.";
+        return;
+      }
+
+      // Version locale : stockage simple dans le navigateur.
+      users[userEmail] = { password: userPassword };
+      localStorage.setItem(USERS_KEY, JSON.stringify(users));
+      localStorage.setItem(AUTH_KEY, userEmail);
+      showSite(userEmail);
+      return;
+    }
+
+    if(!users[userEmail] || users[userEmail].password !== userPassword){
+      error.textContent = "E-mail ou mot de passe incorrect.";
+      return;
+    }
+
+    localStorage.setItem(AUTH_KEY, userEmail);
+    showSite(userEmail);
+  });
+
+  $("#logoutBtn").addEventListener("click", function(){
+    localStorage.removeItem(AUTH_KEY);
+    form.reset();
+    setMode("login");
+    showAuth();
+  });
+
+  const savedUser = localStorage.getItem(AUTH_KEY);
+  if(savedUser){
+    showSite(savedUser);
+  }else{
+    showAuth();
+  }
+})();
+</script>
+
+<script>
+const SAISON = 2026;
+const API = "https://api.jolpi.ca/ergast/f1/" + SAISON;
+const $ = s => document.querySelector(s);
+let COURSES = [];
+function infoAVenir(manche){
+  const c = COURSES.find(x => x.round == manche);
+  return c ? `<div class="msg"><b>${c.raceName}</b> – ${c.Circuit.circuitName}, ${c.Circuit.Location.locality}<br>
+    Course prévue le ${fmtDate(c.date)}. Les résultats seront affichés automatiquement après le Grand Prix.</div>`
+    : '<div class="msg">Résultats pas encore disponibles.</div>';
+}
+const fmtDate = d => new Date(d).toLocaleDateString("fr-BE", {day:"numeric", month:"long"});
+
+async function get(chemin){
+  const r = await fetch(API + chemin);
+  if(!r.ok) throw new Error("Erreur " + r.status);
+  return (await r.json()).MRData;
+}
+function tableau(entetes, lignes){
+  return "<table><thead><tr>" + entetes.map(h => "<th>" + h + "</th>").join("") +
+    "</tr></thead><tbody>" + lignes.join("") + "</tbody></table>";
+}
+function erreur(id){
+  $(id).innerHTML = '<div class="msg">Données indisponibles pour le moment. Réessaie plus tard.</div>';
+}
+
+// Onglets
+document.querySelectorAll("nav button").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll("nav button").forEach(x => x.setAttribute("aria-selected", x === b));
+  document.querySelectorAll("section").forEach(s => s.classList.toggle("on", s.id === b.dataset.t));
+}));
+
+async function pilotes(){
+  try{
+    const d = await get("/driverStandings.json");
+    const l = d.StandingsTable.StandingsLists[0];
+    if(!l){ $("#pilotes").innerHTML = '<div class="msg">Pas encore de classement.</div>'; return; }
+    $("#sousTitre").textContent = "Après " + l.round + " Grand Prix";
+    $("#pilotes").innerHTML = tableau(["", "Pilote", "Écurie", "Victoires", "Points"],
+      l.DriverStandings.map(p => `<tr><td class="pos">${p.position}</td>
+        <td>${p.Driver.givenName} ${p.Driver.familyName}</td>
+        <td>${p.Constructors.map(c => c.name).join(", ")}</td>
+        <td class="n">${p.wins}</td><td class="n"><b>${p.points}</b></td></tr>`));
+  }catch(e){ erreur("#pilotes"); }
+}
+
+async function ecuries(){
+  try{
+    const d = await get("/constructorStandings.json");
+    const l = d.StandingsTable.StandingsLists[0];
+    if(!l){ $("#ecuries").innerHTML = '<div class="msg">Pas encore de classement.</div>'; return; }
+    $("#ecuries").innerHTML = tableau(["", "Écurie", "Victoires", "Points"],
+      l.ConstructorStandings.map(c => `<tr><td class="pos">${c.position}</td>
+        <td>${c.Constructor.name}</td><td class="n">${c.wins}</td>
+        <td class="n"><b>${c.points}</b></td></tr>`));
+  }catch(e){ erreur("#ecuries"); }
+}
+
+async function calendrier(){
+  try{
+    const d = await get(".json");
+    const courses = d.RaceTable.Races;
+    $("#calendrier").innerHTML = tableau(["Manche", "Grand Prix", "Circuit", "Date"],
+      courses.map(c => `<tr><td class="pos">${c.round}</td><td>${c.raceName}</td>
+        <td>${c.Circuit.Location.locality}, ${c.Circuit.Location.country}</td>
+        <td>${fmtDate(c.date)}</td></tr>`));
+    const suivante = courses.find(c => new Date(c.date + "T23:59:59") > new Date());
+    if(suivante){
+      const jours = Math.max(0, Math.ceil((new Date(suivante.date) - new Date()) / 864e5));
+      $("#prochain").innerHTML = `<div><span>Prochain Grand Prix</span>
+        <b>${suivante.raceName}</b>
+        <span>${fmtDate(suivante.date)} · ${jours === 0 ? "aujourd'hui" : "dans " + jours + " jour" + (jours > 1 ? "s" : "")}</span></div>`;
+    }
+    const passees = courses.filter(c => new Date(c.date) <= new Date());
+    COURSES = courses;
+    const sel = $("#choixCourse");
+    sel.innerHTML = courses.map(c => `<option value="${c.round}">${c.round}. ${c.raceName}${passees.includes(c) ? "" : " (à venir)"}</option>`).join("");
+    sel.value = passees.length ? passees[passees.length - 1].round : courses[0].round;
+    sel.addEventListener("change", () => resultat(sel.value));
+    resultat(sel.value);
+  }catch(e){ erreur("#calendrier"); erreur("#resultatCourse"); }
+}
+
+async function qualifications(manche){
+  $("#qualifs").innerHTML = '<div class="msg">Chargement…</div>';
+  try{
+    const d = await get("/" + manche + "/qualifying.json");
+    const r = d.RaceTable.Races[0];
+    if(!r){ $("#qualifs").innerHTML = '<div class="msg">Qualifications pas encore disputées.</div>'; return; }
+    $("#qualifs").innerHTML = tableau(["", "Pilote", "Écurie", "Q1", "Q2", "Q3"],
+      r.QualifyingResults.map(x => `<tr><td class="pos">${x.position}</td>
+        <td>${x.Driver.givenName} ${x.Driver.familyName}</td>
+        <td>${x.Constructor.name}</td>
+        <td>${x.Q1 || "–"}</td><td>${x.Q2 || "–"}</td><td>${x.Q3 || "–"}</td></tr>`));
+  }catch(e){ erreur("#qualifs"); }
+}
+
+async function resultat(manche){
+  qualifications(manche);
+  $("#resultatCourse").innerHTML = '<div class="msg">Chargement…</div>';
+  try{
+    const d = await get("/" + manche + "/results.json");
+    const r = d.RaceTable.Races[0];
+    if(!r){ $("#resultatCourse").innerHTML = infoAVenir(manche); return; }
+    $("#resultatCourse").innerHTML = tableau(["", "Pilote", "Écurie", "Arrivée / écart", "Pts"],
+      r.Results.map(x => `<tr><td class="pos">${x.positionText}</td>
+        <td>${x.Driver.givenName} ${x.Driver.familyName}</td>
+        <td>${x.Constructor.name}</td>
+        <td>${x.Time ? x.Time.time : x.status}</td>
+        <td class="n">${x.points}</td></tr>`));
+  }catch(e){ erreur("#resultatCourse"); }
+}
+
+pilotes(); ecuries(); calendrier();
+</script>
+
+</div>
+</body>
+</html>
